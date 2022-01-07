@@ -17,5 +17,10 @@ describe("Rate limiter", () => {
   it('returns true when isValidId is called', () => {
     expect(rl.isValidId()).toBe(true);
   })
+
+  it('should return false if id has already been called', () => {
+    expect(rl.isValidId()).toBe(true)
+    expect(rl.isValidId()).toBe(false)
+  })
   
 });

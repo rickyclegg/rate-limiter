@@ -1,8 +1,13 @@
 class RateLimiter implements Limitless {
 
+    private isValidCalled = false
+
     public isValidId(): boolean {
-        
-        return true
+        if (!this.isValidCalled) {
+            this.isValidCalled = true
+            return true
+        } 
+        return false
     }
 
 }
