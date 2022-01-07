@@ -1,0 +1,3 @@
+interface Limitless {
+    isValidId(): boolean
+}
