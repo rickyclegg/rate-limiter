@@ -1,10 +1,12 @@
+import {Limitless, ValidParams} from './types'
+
 class RateLimiter implements Limitless {
 
-    private isValidCalled = false
+    private calls: Record<string, boolean> = {}
 
-    public isValidId(): boolean {
-        if (!this.isValidCalled) {
-            this.isValidCalled = true
+    public isValidId(params: ValidParams): boolean {
+        if (!this.calls[params.id]) {
+            this.calls[params.id] = true
             return true
         } 
         return false
