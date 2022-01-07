@@ -4,9 +4,18 @@
 import RateLimiter from './rate-limiter'
 
 describe("Rate limiter", () => {
-  it('exists', () => {
-    const rl = new RateLimiter()
+  let rl: Limitless
 
+  beforeEach(() => {
+    rl = new RateLimiter()
+  })
+  
+  it('exists', () => {
     expect(rl).toBeDefined()
   })
+  
+  it('returns true when isValidId is called', () => {
+    expect(rl.isValidId()).toBe(true);
+  })
+  
 });
