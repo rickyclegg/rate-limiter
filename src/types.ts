@@ -1,7 +1,7 @@
-export interface ValidParams {
+export interface AllowParams {
     id: string
 }
 
 export interface Limitless {
-    isValidId(params: ValidParams): boolean
+    isAllowed(params: AllowParams): boolean
 }
