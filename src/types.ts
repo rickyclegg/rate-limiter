@@ -5,3 +5,8 @@ export interface AllowParams {
 export interface Limitless {
     isAllowed(params: AllowParams): boolean
 }
+
+export interface RateLimiterOptions {
+    allowedCalls: number,
+    timeperiod?: number
+}
