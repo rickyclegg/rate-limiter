@@ -11,20 +11,17 @@ class RateLimiter implements Limitless {
     
     public isAllowed(params: AllowParams): boolean {
         if (!this.options.timeperiod) {
-            if (!this.calls[params.id]) {
-                this.calls[params.id] = 1
+            if (!this.getNumberOfCalls(params.id)) {
+                this.setNumberOfCalls(params.id, 1)
                 return true
             } 
             return false
         } else {
-            let numberOfCalls = this.calls[params.id] ?? 0
-
-            if (numberOfCalls < this.options.allowedCalls) {
-                numberOfCalls += 1;
-                this.calls[params.id] = numberOfCalls;
+            if (this.getNumberOfCalls(params.id) < this.options.allowedCalls) {
+                this.setNumberOfCalls(params.id, 1)
 
                 setTimeout(() => {
-                    delete this.calls[params.id];
+                    this.deleteNumberOfCalls(params.id)
                 }, this.options.timeperiod);
 
                 return true
@@ -34,6 +31,19 @@ class RateLimiter implements Limitless {
         return false 
     }
 
+    private setNumberOfCalls(id: string, increment: number) : void {
+        let numberOfCalls = this.getNumberOfCalls(id)
+        numberOfCalls += increment;
+        this.calls[id] = numberOfCalls;
+    }
+
+    private getNumberOfCalls(id: string): number {
+        return this.calls[id] ?? 0
+    }
+
+    private deleteNumberOfCalls(id:string): void {
+        delete this.calls[id]
+    }
 }
 
 export default RateLimiter
