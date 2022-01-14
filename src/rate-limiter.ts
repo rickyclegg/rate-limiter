@@ -31,17 +31,17 @@ class RateLimiter implements Limitless {
         return false 
     }
 
-    private setNumberOfCalls(id: string, increment: number) : void {
+    private setNumberOfCalls(id: AllowParams['id'], increment: number) : void {
         let numberOfCalls = this.getNumberOfCalls(id)
         numberOfCalls += increment;
         this.calls[id] = numberOfCalls;
     }
 
-    private getNumberOfCalls(id: string): number {
+    private getNumberOfCalls(id: AllowParams['id']): number {
         return this.calls[id] ?? 0
     }
 
-    private deleteNumberOfCalls(id:string): void {
+    private deleteNumberOfCalls(id: AllowParams['id']): void {
         delete this.calls[id]
     }
 }
