@@ -1,3 +1,5 @@
+import { Bucket } from './buckets/types';
+
 export interface AllowParams {
     id: string
 }
@@ -7,16 +9,9 @@ export interface Limitless {
 }
 
 export interface RateLimiterOptions {
-    container: Container,
+    container: Bucket,
     allowedCalls: number,
     timeperiod?: number
 }
 
 
-export interface Container {
-    set(id: AllowParams['id'], increment: number) : void 
-
-    get(id: AllowParams['id']): number 
-
-    delete(id: AllowParams['id']): void
-}

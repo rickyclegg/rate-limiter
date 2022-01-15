@@ -1,7 +1,7 @@
 // BUILD A RATE LIMITER
 // A rate limiter can limit by requests x number per second
 // Given {id: "xxxxxxx"} it will return a boolean to represent if the action is allowed
-import { Bucket } from './bucket';
+import { MemBucket } from './buckets/mem-bucket';
 import RateLimiter from './rate-limiter'
 import {Limitless, AllowParams} from './types'
 
@@ -31,7 +31,7 @@ describe("Rate limiter", () => {
     const params2 = createRandomParams()
     const allowedCalls = getRandomInt()
 
-    rl = new RateLimiter({allowedCalls, container: new Bucket()})
+    rl = new RateLimiter({allowedCalls, container: new MemBucket()})
 
     assertAllowedCalls(params1, allowedCalls)
     assertBlockedCalls(params1, allowedCalls)
@@ -44,8 +44,8 @@ describe("Rate limiter", () => {
 
     jest.useFakeTimers();
 
-    rl = new RateLimiter({allowedCalls, timeperiod: 1000, container: new Bucket()})
-    
+    rl = new RateLimiter({allowedCalls, timeperiod: 1000, container: new MemBucket()})
+
     assertAllowedCalls(params1, allowedCalls)
     assertBlockedCalls(params1, getRandomInt())
 

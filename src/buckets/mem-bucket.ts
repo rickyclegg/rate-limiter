@@ -1,6 +1,7 @@
-import {AllowParams, Container} from './types'
+import {AllowParams} from '../types'
+import { Bucket } from './types';
 
-export class Bucket implements Container {
+export class MemBucket implements Bucket {
     private calls: Record<string, number> = {}
 
     public set(id: AllowParams['id'], increment: number) : void {
