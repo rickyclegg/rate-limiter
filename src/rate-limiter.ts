@@ -12,7 +12,8 @@ class RateLimiter implements Limitless {
         this.calls = container
     }
 
-    public isAllowed(params: AllowParams): boolean {
+    //@ts-ignore
+    public async isAllowed(params: AllowParams): Promise<boolean> {
         if (this.calls.get(params.id) < this.options.allowedCalls) {
             this.calls.set(params.id, 1)
 

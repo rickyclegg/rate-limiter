@@ -5,7 +5,7 @@ export interface AllowParams {
 }
 
 export interface Limitless {
-    isAllowed(params: AllowParams): boolean
+    isAllowed(params: AllowParams): Promise<boolean>
 }
 
 export interface RateLimiterOptions {

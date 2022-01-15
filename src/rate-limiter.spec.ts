@@ -6,52 +6,50 @@ import RateLimiter from './rate-limiter'
 import {Limitless, AllowParams} from './types'
 
 describe("Rate limiter", () => {
-  let rl: Limitless
-
   const getRandomInt = (): number => Math.floor(Math.random() * 1000)
 
   const createRandomParams = (): AllowParams => ({
     id: getRandomInt().toString()
   })
 
-  const assertAllowedCalls = (params: AllowParams, calls: number): void => {
+  const assertAllowedCalls = async (rl: Limitless, params: AllowParams, calls: number): Promise<void> => {
     for(let i = 0; i < calls; i++) {
-      expect(rl.isAllowed(params)).toBe(true)
+      expect(await rl.isAllowed(params)).toBe(true)
     }
   }
 
-  const assertBlockedCalls = (params: AllowParams, calls: number) => {
+  const assertBlockedCalls = async (rl: Limitless, params: AllowParams, calls: number): Promise<void> => {
     for(let i = 0; i < calls; i++) {
-      expect(rl.isAllowed(params)).toBe(false)
+      expect(await rl.isAllowed(params)).toBe(false)
     }
   }
 
-  it('should NOT allow calling anything beyond rate', () => {
+  it('should NOT allow calling anything beyond rate', async () => {
     const params1 = createRandomParams()
     const params2 = createRandomParams()
     const allowedCalls = getRandomInt()
 
-    rl = new RateLimiter({allowedCalls, container: new MemBucket()})
+    const rl = new RateLimiter({allowedCalls, container: new MemBucket()})
 
-    assertAllowedCalls(params1, allowedCalls)
-    assertBlockedCalls(params1, allowedCalls)
-    assertAllowedCalls(params2, allowedCalls)
+    await assertAllowedCalls(rl, params1, allowedCalls)
+    await assertBlockedCalls(rl, params1, allowedCalls)
+    await assertAllowedCalls(rl, params2, allowedCalls)
   })
 
-  it('should allow calling rate after timeout', () => {
+  it('should allow calling rate after timeout', async () => {
     const params1 = createRandomParams()
     const allowedCalls = getRandomInt()
 
     jest.useFakeTimers();
 
-    rl = new RateLimiter({allowedCalls, timeperiod: 1000, container: new MemBucket()})
+    const rl = new RateLimiter({allowedCalls, timeperiod: 1000, container: new MemBucket()})
 
-    assertAllowedCalls(params1, allowedCalls)
-    assertBlockedCalls(params1, getRandomInt())
+    await assertAllowedCalls(rl, params1, allowedCalls)
+    await assertBlockedCalls(rl, params1, getRandomInt())
 
     jest.advanceTimersByTime(1001)
 
-    assertAllowedCalls(params1, allowedCalls)
+    await assertAllowedCalls(rl, params1, allowedCalls)
 
     jest.useRealTimers();
   })
