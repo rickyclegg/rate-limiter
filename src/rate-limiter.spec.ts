@@ -29,7 +29,7 @@ describe("Rate limiter", () => {
     const params2 = createRandomParams()
     const allowedCalls = getRandomInt()
 
-    const rl = new RateLimiter({allowedCalls, container: new MemBucket()})
+    const rl = new RateLimiter({allowedCalls, bucket: new MemBucket()})
 
     await assertAllowedCalls(rl, params1, allowedCalls)
     await assertBlockedCalls(rl, params1, allowedCalls)
@@ -42,7 +42,7 @@ describe("Rate limiter", () => {
 
     jest.useFakeTimers();
 
-    const rl = new RateLimiter({allowedCalls, timeperiod: 1000, container: new MemBucket()})
+    const rl = new RateLimiter({allowedCalls, timeperiod: 1000, bucket: new MemBucket()})
 
     await assertAllowedCalls(rl, params1, allowedCalls)
     await assertBlockedCalls(rl, params1, getRandomInt())

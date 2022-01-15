@@ -4,22 +4,22 @@ import { Bucket } from './buckets/types';
 
 class RateLimiter implements Limitless {
 
-    private calls: Bucket
-    private options: Omit<RateLimiterOptions, 'container'>
+    private bucket: Bucket
+    private options: Omit<RateLimiterOptions, 'bucket'>
 
-    constructor({container, ...options}: RateLimiterOptions) {
+    constructor({bucket, ...options}: RateLimiterOptions) {
         this.options = options;
-        this.calls = container
+        this.bucket = bucket
     }
 
     //@ts-ignore
     public async isAllowed(params: AllowParams): Promise<boolean> {
-        if (await this.calls.get(params.id) < this.options.allowedCalls) {
-            await this.calls.set(params.id, 1)
+        if (await this.bucket.get(params.id) < this.options.allowedCalls) {
+            await this.bucket.set(params.id, 1)
 
             if (this.options.timeperiod) {
                 setTimeout(async () => {
-                    await this.calls.delete(params.id)
+                    await this.bucket.delete(params.id)
                 }, this.options.timeperiod);
             }
 

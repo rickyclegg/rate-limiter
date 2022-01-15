@@ -9,7 +9,7 @@ export interface Limitless {
 }
 
 export interface RateLimiterOptions {
-    container: Bucket,
+    bucket: Bucket,
     allowedCalls: number,
     timeperiod?: number
 }
