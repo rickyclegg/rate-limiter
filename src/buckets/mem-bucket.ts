@@ -4,17 +4,17 @@ import { Bucket } from './types';
 export class MemBucket implements Bucket {
     private calls: Record<string, number> = {}
 
-    public set(id: AllowParams['id'], increment: number) : void {
-        let numberOfCalls = this.get(id)
+    public async set(id: AllowParams['id'], increment: number) : Promise<void> {
+        let numberOfCalls = await this.get(id)
         numberOfCalls += increment;
         this.calls[id] = numberOfCalls;
     }
 
-    public get(id: AllowParams['id']): number {
+    public async get(id: AllowParams['id']): Promise<number> {
         return this.calls[id] ?? 0
     }
 
-    public delete(id: AllowParams['id']): void {
+    public async delete(id: AllowParams['id']): Promise<void> {
         delete this.calls[id]
     }
 }

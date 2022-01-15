@@ -14,12 +14,12 @@ class RateLimiter implements Limitless {
 
     //@ts-ignore
     public async isAllowed(params: AllowParams): Promise<boolean> {
-        if (this.calls.get(params.id) < this.options.allowedCalls) {
-            this.calls.set(params.id, 1)
+        if (await this.calls.get(params.id) < this.options.allowedCalls) {
+            await this.calls.set(params.id, 1)
 
             if (this.options.timeperiod) {
-                setTimeout(() => {
-                    this.calls.delete(params.id)
+                setTimeout(async () => {
+                    await this.calls.delete(params.id)
                 }, this.options.timeperiod);
             }
 
