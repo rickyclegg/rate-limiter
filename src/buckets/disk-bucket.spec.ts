@@ -41,4 +41,19 @@ describe("Disk Bucket", () => {
       JSON.stringify({ [id]: numberOfCalls + 1 })
     );
   });
+
+  it("should call the writer to store the entire bucket in memory", async () => {
+    const numberOfCalls = 0;
+    const { id, filename, reader, writer } = createTestDeps();
+
+    const db = new DiskBucket({ reader, writer, filename });
+    reader.mockResolvedValue(JSON.stringify({ shouldPreserve: 3 }));
+
+    await db.set(id, 1);
+
+    expect(writer).toHaveBeenCalledWith(
+      filename,
+      JSON.stringify({ shouldPreserve: 3, [id]: numberOfCalls + 1 })
+    );
+  });
 });

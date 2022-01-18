@@ -7,6 +7,8 @@ interface Options {
   writer(filename: string, data: string): Promise<void>;
 }
 
+type BucketMemory = Record<string, number>
+
 export class DiskBucket implements Bucket {
   private options: Options;
 
@@ -14,20 +16,26 @@ export class DiskBucket implements Bucket {
     this.options = options;
   }
 
-  public async get(id: AllowParams["id"]): Promise<number> {
+  private async getBucket(): Promise<BucketMemory> {
     const rawFile = await this.options.reader(this.options.filename, "utf8");
-    const memory: Record<string, number> = JSON.parse(rawFile);
+
+    return JSON.parse(rawFile)
+  }
+
+  public async get(id: AllowParams["id"]): Promise<number> {
+    const memory = await this.getBucket();
 
     return memory[id] ?? 0;
   }
 
   public async set(id: AllowParams["id"], increment: number): Promise<void> {
-    let numberOfCalls = await this.get(id);
+    const memory = await this.getBucket();
+    let numberOfCalls = memory[id] ?? 0;
     numberOfCalls += increment;
 
     await this.options.writer(
       this.options.filename,
-      JSON.stringify({ [id]: numberOfCalls })
+      JSON.stringify({ ...memory, [id]: numberOfCalls })
     );
   }
 
