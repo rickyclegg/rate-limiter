@@ -12,6 +12,10 @@ type BucketMemory = Record<string, number>
 export class DiskBucket implements Bucket {
   private options: Options;
 
+  private static getBucketValue(memory: BucketMemory, id: AllowParams["id"]): number {
+    return memory[id] ?? 0;
+  }
+
   constructor(options: Options) {
     this.options = options;
   }
@@ -25,12 +29,12 @@ export class DiskBucket implements Bucket {
   public async get(id: AllowParams["id"]): Promise<number> {
     const memory = await this.getBucket();
 
-    return memory[id] ?? 0;
+    return DiskBucket.getBucketValue(memory, id);
   }
 
   public async set(id: AllowParams["id"], increment: number): Promise<void> {
     const memory = await this.getBucket();
-    let numberOfCalls = memory[id] ?? 0;
+    let numberOfCalls = DiskBucket.getBucketValue(memory, id);
     numberOfCalls += increment;
 
     await this.options.writer(
