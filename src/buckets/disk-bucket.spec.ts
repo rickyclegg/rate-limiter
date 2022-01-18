@@ -1,17 +1,21 @@
 import { DiskBucket } from "./disk-bucket";
 
 describe("Disk Bucket", () => {
+  const createTestDeps = () => ({
+    reader: jest.fn().mockResolvedValue("{}"),
+    writer: jest.fn().mockResolvedValue(undefined),
+  });
+
   it("should get me the call count from disk", async () => {
     const id = "myTestKey";
     const numberOfCalls = 3;
-    const stubDiskReader = async () => {
-      return JSON.stringify({ [id]: numberOfCalls });
-    };
-    const dummyDiskWriter = jest.fn().mockResolvedValue(undefined);
+    const { reader, writer } = createTestDeps();
+
+    reader.mockResolvedValue(JSON.stringify({ [id]: numberOfCalls }));
 
     const db = new DiskBucket({
-      reader: stubDiskReader,
-      writer: dummyDiskWriter,
+      reader,
+      writer,
       filename: "dummyFilename",
     });
 
@@ -21,14 +25,11 @@ describe("Disk Bucket", () => {
   it("should return 0 for call counts that do not exist", async () => {
     const id = "myTestKey";
     const numberOfCalls = 0;
-    const stubDiskReader = async () => {
-      return JSON.stringify({});
-    };
-    const dummyDiskWriter = jest.fn().mockResolvedValue(undefined);
+    const { reader, writer } = createTestDeps();
 
     const db = new DiskBucket({
-      reader: stubDiskReader,
-      writer: dummyDiskWriter,
+      reader,
+      writer,
       filename: "dummyFilename",
     });
 
@@ -38,20 +39,17 @@ describe("Disk Bucket", () => {
   it("should call the writer to store the bucket in memory", async () => {
     const id = "myTestKey";
     const numberOfCalls = 0;
-    const stubDiskReader = async () => {
-      return JSON.stringify({});
-    };
-    const stubDiskWriter = jest.fn().mockResolvedValue(undefined);
+    const { reader, writer } = createTestDeps();
 
     const db = new DiskBucket({
-      reader: stubDiskReader,
-      writer: stubDiskWriter,
+      reader,
+      writer,
       filename: "dummyFilename",
     });
 
     await db.set(id, 1);
 
-    expect(stubDiskWriter).toHaveBeenCalledWith(
+    expect(writer).toHaveBeenCalledWith(
       "dummyFilename",
       JSON.stringify({ [id]: numberOfCalls + 1 })
     );
