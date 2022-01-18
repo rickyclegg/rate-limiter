@@ -44,6 +44,8 @@ export class DiskBucket implements Bucket {
   }
 
   public delete(id: AllowParams["id"]): Promise<void> {
+    console.log('DELETE THE CALL COUNT')
+
     return Promise.resolve(undefined);
   }
 }
