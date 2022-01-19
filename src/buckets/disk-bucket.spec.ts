@@ -69,9 +69,24 @@ describe("Disk Bucket", () => {
 
       reader.mockResolvedValue(JSON.stringify({ [id]: 0 }));
 
-      await db.delete(id)
+      await db.delete(id);
 
       expect(writer).toHaveBeenCalledWith(filename, JSON.stringify({}));
+    });
+
+    it("should preserve other calls counts when deleting a property", async () => {
+      const { id, filename, reader, writer } = createTestDeps();
+
+      const db = new DiskBucket({ reader, writer, filename });
+
+      reader.mockResolvedValue(JSON.stringify({ [id]: 0, iWillSurvive: 1 }));
+
+      await db.delete(id);
+
+      expect(writer).toHaveBeenCalledWith(
+        filename,
+        JSON.stringify({ iWillSurvive: 1 })
+      );
     });
   });
 });
