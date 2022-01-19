@@ -7,12 +7,15 @@ interface Options {
   writer(filename: string, data: string): Promise<void>;
 }
 
-type BucketMemory = Record<string, number>
+type BucketMemory = Record<string, number>;
 
 export class DiskBucket implements Bucket {
   private options: Options;
 
-  private static getBucketValue(memory: BucketMemory, id: AllowParams["id"]): number {
+  private static getBucketValue(
+    memory: BucketMemory,
+    id: AllowParams["id"]
+  ): number {
     return memory[id] ?? 0;
   }
 
@@ -23,7 +26,7 @@ export class DiskBucket implements Bucket {
   private async getBucket(): Promise<BucketMemory> {
     const rawFile = await this.options.reader(this.options.filename, "utf8");
 
-    return JSON.parse(rawFile)
+    return JSON.parse(rawFile);
   }
 
   public async get(id: AllowParams["id"]): Promise<number> {
@@ -43,9 +46,14 @@ export class DiskBucket implements Bucket {
     );
   }
 
-  public delete(id: AllowParams["id"]): Promise<void> {
-    console.log('DELETE THE CALL COUNT')
+  public async delete(id: AllowParams["id"]): Promise<void> {
+    const memory = await this.getBucket();
 
-    return Promise.resolve(undefined);
+    delete memory[id];
+
+    await this.options.writer(
+        this.options.filename,
+        JSON.stringify(memory)
+    );
   }
 }

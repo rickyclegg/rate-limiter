@@ -8,52 +8,70 @@ describe("Disk Bucket", () => {
     filename: `filename-${Math.floor(Math.random() * 100000)}`,
   });
 
-  it("should get me the call count from disk", async () => {
-    const numberOfCalls = 3;
-    const { id, filename, reader, writer } = createTestDeps();
+  describe("reading", () => {
+    it("should get me the call count from disk", async () => {
+      const numberOfCalls = 3;
+      const { id, filename, reader, writer } = createTestDeps();
 
-    reader.mockResolvedValue(JSON.stringify({ [id]: numberOfCalls }));
+      reader.mockResolvedValue(JSON.stringify({ [id]: numberOfCalls }));
 
-    const db = new DiskBucket({ reader, writer, filename });
+      const db = new DiskBucket({ reader, writer, filename });
 
-    expect(await db.get(id)).toEqual(numberOfCalls);
+      expect(await db.get(id)).toEqual(numberOfCalls);
+    });
+
+    it("should return 0 for call counts that do not exist", async () => {
+      const numberOfCalls = 0;
+      const { id, filename, reader, writer } = createTestDeps();
+
+      const db = new DiskBucket({ reader, writer, filename });
+
+      expect(await db.get(id)).toEqual(numberOfCalls);
+    });
   });
 
-  it("should return 0 for call counts that do not exist", async () => {
-    const numberOfCalls = 0;
-    const { id, filename, reader, writer } = createTestDeps();
+  describe("writing", () => {
+    it("should call the writer to store the bucket in memory", async () => {
+      const numberOfCalls = 0;
+      const { id, filename, reader, writer } = createTestDeps();
 
-    const db = new DiskBucket({ reader, writer, filename });
+      const db = new DiskBucket({ reader, writer, filename });
 
-    expect(await db.get(id)).toEqual(numberOfCalls);
+      await db.set(id, 1);
+
+      expect(writer).toHaveBeenCalledWith(
+        filename,
+        JSON.stringify({ [id]: numberOfCalls + 1 })
+      );
+    });
+
+    it("should call the writer to store the entire bucket in memory", async () => {
+      const numberOfCalls = 0;
+      const { id, filename, reader, writer } = createTestDeps();
+
+      const db = new DiskBucket({ reader, writer, filename });
+      reader.mockResolvedValue(JSON.stringify({ shouldPreserve: 3 }));
+
+      await db.set(id, 1);
+
+      expect(writer).toHaveBeenCalledWith(
+        filename,
+        JSON.stringify({ shouldPreserve: 3, [id]: numberOfCalls + 1 })
+      );
+    });
   });
 
-  it("should call the writer to store the bucket in memory", async () => {
-    const numberOfCalls = 0;
-    const { id, filename, reader, writer } = createTestDeps();
+  describe("deleting", () => {
+    it("should remove the property from the memory bucket and write to disk", async () => {
+      const { id, filename, reader, writer } = createTestDeps();
 
-    const db = new DiskBucket({ reader, writer, filename });
+      const db = new DiskBucket({ reader, writer, filename });
 
-    await db.set(id, 1);
+      reader.mockResolvedValue(JSON.stringify({ [id]: 0 }));
 
-    expect(writer).toHaveBeenCalledWith(
-      filename,
-      JSON.stringify({ [id]: numberOfCalls + 1 })
-    );
-  });
+      await db.delete(id)
 
-  it("should call the writer to store the entire bucket in memory", async () => {
-    const numberOfCalls = 0;
-    const { id, filename, reader, writer } = createTestDeps();
-
-    const db = new DiskBucket({ reader, writer, filename });
-    reader.mockResolvedValue(JSON.stringify({ shouldPreserve: 3 }));
-
-    await db.set(id, 1);
-
-    expect(writer).toHaveBeenCalledWith(
-      filename,
-      JSON.stringify({ shouldPreserve: 3, [id]: numberOfCalls + 1 })
-    );
+      expect(writer).toHaveBeenCalledWith(filename, JSON.stringify({}));
+    });
   });
 });
