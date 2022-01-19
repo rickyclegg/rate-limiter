@@ -23,37 +23,35 @@ export class DiskBucket implements Bucket {
     this.options = options;
   }
 
-  private async getBucket(): Promise<BucketMemory> {
-    const rawFile = await this.options.reader(this.options.filename, "utf8");
-
-    return JSON.parse(rawFile);
-  }
-
   public async get(id: AllowParams["id"]): Promise<number> {
-    const memory = await this.getBucket();
+    const memory = await this.readBucket();
 
     return DiskBucket.getBucketValue(memory, id);
   }
 
   public async set(id: AllowParams["id"], increment: number): Promise<void> {
-    const memory = await this.getBucket();
+    const memory = await this.readBucket();
     let numberOfCalls = DiskBucket.getBucketValue(memory, id);
     numberOfCalls += increment;
 
-    await this.options.writer(
-      this.options.filename,
-      JSON.stringify({ ...memory, [id]: numberOfCalls })
-    );
+    await this.writeBucket({ ...memory, [id]: numberOfCalls });
   }
 
   public async delete(id: AllowParams["id"]): Promise<void> {
-    const memory = await this.getBucket();
+    const memory = await this.readBucket();
 
     delete memory[id];
 
-    await this.options.writer(
-        this.options.filename,
-        JSON.stringify(memory)
-    );
+    await this.writeBucket(memory);
+  }
+
+  private async readBucket(): Promise<BucketMemory> {
+    const rawFile = await this.options.reader(this.options.filename, "utf8");
+
+    return JSON.parse(rawFile);
+  }
+
+  private async writeBucket(memory: BucketMemory): Promise<void> {
+    await this.options.writer(this.options.filename, JSON.stringify(memory));
   }
 }
